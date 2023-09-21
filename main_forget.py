@@ -14,7 +14,56 @@ import evaluation
 
 import arg_parser
 
+from transformers import PretrainedConfig, PreTrainedModel
+from peft import LoraConfig, get_peft_model
+from typing import List
+import torch
+import torch.nn as nn
+from models.ResNet import *
 
+class ResnetConfig(PretrainedConfig):
+    model_type = "resnet"
+
+    def __init__(
+        self,
+        num_classes=1000,
+        zero_init_residual=False,
+        groups=1,
+        width_per_group=64,
+        replace_stride_with_dilation=None,
+        norm_layer=None,
+        imagenet=False,
+        **kwargs,
+    ):
+        if norm_layer is None:
+            self.norm_layer = nn.BatchNorm2d
+
+        if replace_stride_with_dilation is None:
+            # each element in the tuple indicates if we should replace
+            # the 2x2 stride with a dilated convolution instead
+            self.replace_stride_with_dilation = [False, False, False]
+
+
+
+        self.layers = [2, 2, 2, 2]
+        self.num_classes = num_classes
+        self.groups = groups
+        self.width_per_group = width_per_group
+        super().__init__(**kwargs)
+
+
+class ResnetModelForImageClassification(PreTrainedModel):
+    config_class = ResnetConfig
+
+    def __init__(self, config, pruned_model):
+        super().__init__(config)
+        self.model = pruned_model
+
+    def forward(self, tensor):
+        return self.model.forward(tensor)
+
+
+    
 def main():
     args = arg_parser.parse_args()
     
@@ -127,6 +176,20 @@ def main():
 
         if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
             model.load_state_dict(checkpoint, strict=False)
+            
+            
+        resnet18_config = ResnetConfig(num_classes=10)
+        resnet_18 = ResnetModelForImageClassification(config=resnet18_config, pruned_model = model)
+        config = LoraConfig(
+                            r=16,
+                            lora_alpha=16,
+                            target_modules=['fc'],
+                            lora_dropout=0.1,
+                            bias="none",
+                            modules_to_save=["classifier"],
+                        )
+        lora_model = get_peft_model(resnet_18, config)
+        model = lora_model
 
         unlearn_method = unlearn.get_unlearn_method(args.unlearn)
 
