@@ -167,6 +167,7 @@ def main():
     if args.resume and checkpoint is not None:
         model, evaluation_result = checkpoint
     else:
+        print("inside")
         checkpoint = torch.load(args.mask, map_location=device)
         if 'state_dict' in checkpoint.keys():
             checkpoint = checkpoint['state_dict']
