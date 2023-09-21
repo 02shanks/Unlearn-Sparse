@@ -17,6 +17,8 @@ import arg_parser
 
 def main():
     args = arg_parser.parse_args()
+    
+    print(args)
 
     if torch.cuda.is_available():
         torch.cuda.set_device(int(args.gpu))
