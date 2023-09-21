@@ -190,6 +190,7 @@ def main():
                             modules_to_save=["classifier"],
                         )
         lora_model = get_peft_model(resnet_18, config)
+        print("lora_model_loaded")
         # model = lora_model
 
         unlearn_method = unlearn.get_unlearn_method(args.unlearn)
