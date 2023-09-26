@@ -182,7 +182,7 @@ def main():
         resnet18_config = ResnetConfig(num_classes=10)
         resnet_18 = ResnetModelForImageClassification(config=resnet18_config, pruned_model = model)
         config = LoraConfig(
-                            r=16,
+                            r=2,
                             lora_alpha=16,
                             target_modules=['fc'],
                             lora_dropout=0.1,
@@ -191,7 +191,7 @@ def main():
                         )
         lora_model = get_peft_model(resnet_18, config)
         print("lora_model_loaded")
-        # model = lora_model
+        model = lora_model
 
         unlearn_method = unlearn.get_unlearn_method(args.unlearn)
 
