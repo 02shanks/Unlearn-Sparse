@@ -180,7 +180,7 @@ def main():
     else:
         checkpoint = torch.load(args.mask, map_location=device)
         
-        if args.lora:
+        if args.lora=='YES':
             print("Adding LoRA training mode")
             model_state_dict = model.state_dict()
 
