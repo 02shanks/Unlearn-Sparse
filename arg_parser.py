@@ -89,7 +89,6 @@ def parse_args():
                         help='Specific index data to forget')
     parser.add_argument('--alpha', default=0.2, type=float,
                         help='unlearn noise')
-    
     parser.add_argument('--lora', default='NO', type=str, 
                         choices=['YES', 'NO'], help='lora method')
 
