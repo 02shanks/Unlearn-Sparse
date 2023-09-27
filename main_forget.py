@@ -169,22 +169,68 @@ def main():
     else:
         print("inside")
         checkpoint = torch.load(args.mask, map_location=device)
-        if 'state_dict' in checkpoint.keys():
-            checkpoint = checkpoint['state_dict']
-        current_mask = pruner.extract_mask(checkpoint)
-        pruner.prune_model_custom(model, current_mask)
-        pruner.check_sparsity(model)
+        # if 'state_dict' in checkpoint.keys():
+        #     checkpoint = checkpoint['state_dict']
+        # current_mask = pruner.extract_mask(checkpoint)
+        # pruner.prune_model_custom(model, current_mask)
+        # pruner.check_sparsity(model)
 
-        if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
-            model.load_state_dict(checkpoint, strict=False)
+        # if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
+        #     model.load_state_dict(checkpoint, strict=False)
+        
+        model_state_dict = model.state_dict()
+
+        for key in checkpoint['state_dict'].keys():
+            if "mask" in key or 'orig' in key:
+                raw_key = key.split('_')[0]
+                orig_w_key = raw_key + '_orig'
+                mask_w_key = raw_key + '_mask'
+
+                # Check if orig and mask keys exist in the checkpoint
+                if orig_w_key not in checkpoint['state_dict'] or mask_w_key not in checkpoint['state_dict']:
+                    raise KeyError(f"Missing orig/mask keys for {raw_key}")
+
+                # Extract original weight (A) and mask (B)
+                A = checkpoint['state_dict'][orig_w_key]
+                B = checkpoint['state_dict'][mask_w_key]
+                
+                # Check if A and B have compatible shapes
+                if A.shape != B.shape:
+                    raise ValueError(f"Shapes of {orig_w_key} and {mask_w_key} do not match")
+
+                # Perform pointwise multiplication and assign to the original key in the model's state_dict
+                model_state_dict[raw_key] = A.mul(B)
+
+            else:
+                # Assign the same weight in the checkpoint to the model
+                model_state_dict[key] = checkpoint['state_dict'][key]
             
-            
+        target_modules=['model.conv1',
+                    'model.layer1.0.conv1',
+                    'model.layer1.0.conv2',
+                    'model.layer1.1.conv1',
+                    'model.layer1.1.conv2',
+                    'model.layer2.0.conv1',
+                    'model.layer2.0.conv2',
+                    'model.layer2.1.conv1',
+                    'model.layer2.1.conv2',
+                    'model.layer3.0.conv1',
+                    'model.layer3.0.conv2',
+                    'model.layer3.1.conv1',
+                    'model.layer3.1.conv2',
+                    'model.layer4.0.conv1',
+                    'model.layer4.0.conv2',
+                    'model.layer4.1.conv1',
+                    'model.layer4.1.conv2',
+                    'model.layer4.1.conv2',
+                    'model.fc'
+                    ]   
         resnet18_config = ResnetConfig(num_classes=10)
         resnet_18 = ResnetModelForImageClassification(config=resnet18_config, pruned_model = model)
         config = LoraConfig(
                             r=2,
                             lora_alpha=16,
-                            target_modules=['fc'],
+                            target_modules=target_modules,
                             lora_dropout=0.1,
                             bias="none",
                             modules_to_save=["classifier"],
