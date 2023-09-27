@@ -231,7 +231,9 @@ def main():
             lora_model = get_peft_model(resnet_18, config)
             print("lora_model_loaded")
             model = lora_model
+            pruner.check_sparsity(model)
         else:
+            print("Without LoRA method")
             if 'state_dict' in checkpoint.keys():
                 checkpoint = checkpoint['state_dict']
             current_mask = pruner.extract_mask(checkpoint)
