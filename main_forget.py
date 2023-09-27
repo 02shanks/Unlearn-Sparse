@@ -62,6 +62,17 @@ class ResnetModelForImageClassification(PreTrainedModel):
     def forward(self, tensor):
         return self.model.forward(tensor)
 
+def print_trainable_parameters(model):
+    trainable_params = 0
+    all_param = 0
+    for _, param in model.named_parameters():
+        all_param += param.numel()
+        if param.requires_grad:
+            trainable_params += param.numel()
+    print(
+        f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param:.2f}"
+    )
+
 
     
 def main():
@@ -231,7 +242,6 @@ def main():
             lora_model = get_peft_model(resnet_18, config)
             print("lora_model_loaded")
             model = lora_model
-            pruner.check_sparsity(model)
         else:
             print("Without LoRA method")
             if 'state_dict' in checkpoint.keys():
@@ -243,6 +253,8 @@ def main():
             if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
                 model.load_state_dict(checkpoint, strict=False)
 
+        print_trainable_parameters(model)
+        
         unlearn_method = unlearn.get_unlearn_method(args.unlearn)
 
         unlearn_method(unlearn_data_loaders, model, criterion, args)
