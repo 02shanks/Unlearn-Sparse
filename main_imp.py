@@ -265,7 +265,7 @@ def main():
             plt.plot(all_result['test_ta'], label='test_acc')
             plt.legend()
             plt.savefig(os.path.join(args.save_dir,
-                        str(state)+'net_train.png'))
+                        str(state)+'_'+'net_train.png'))
             plt.close()
             print("one epoch duration:{}".format(time.time()-start_time))
 
