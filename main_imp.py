@@ -208,6 +208,9 @@ def main():
 
         start_epoch = 0
         start_state = 0
+        
+    for key in model.state_dict().keys():
+        print(key)
 
     print('######################################## Start Standard Training Iterative Pruning ########################################')
 
@@ -317,6 +320,9 @@ def main():
             # learning rate rewinding
             for _ in range(args.rewind_epoch):
                 scheduler.step()
+                
+    for key in model.state_dict().keys():
+        print(key)
 
 
 if __name__ == '__main__':
