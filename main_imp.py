@@ -28,9 +28,60 @@ from trainer import train, validate
 from utils import *
 from pruner import *
 
+from transformers import PretrainedConfig, PreTrainedModel
+from peft import LoraConfig, get_peft_model
+from typing import List
+from models.ResNet import *
+
+
 import arg_parser
 
 best_sa = 0
+
+class ResnetConfig(PretrainedConfig):
+    model_type = "resnet"
+
+    def __init__(
+        self,
+        num_classes=1000,
+        zero_init_residual=False,
+        groups=1,
+        width_per_group=64,
+        replace_stride_with_dilation=None,
+        norm_layer=None,
+        imagenet=False,
+        **kwargs,
+    ):
+        if norm_layer is None:
+            self.norm_layer = nn.BatchNorm2d
+
+        if replace_stride_with_dilation is None:
+            # each element in the tuple indicates if we should replace
+            # the 2x2 stride with a dilated convolution instead
+            self.replace_stride_with_dilation = [False, False, False]
+
+
+
+        self.layers = [2, 2, 2, 2]
+        self.num_classes = num_classes
+        self.groups = groups
+        self.width_per_group = width_per_group
+        super().__init__(**kwargs)
+
+
+class ResnetModelForImageClassification(PreTrainedModel):
+    config_class = ResnetConfig
+
+    def __init__(self, config, pruned_model):
+        super().__init__(config)
+        self.model = pruned_model
+
+    def forward(self, tensor):
+        return self.model.forward(tensor)
+
+
+
+
 
 
 def main():
@@ -50,8 +101,46 @@ def main():
     else:
         model, train_loader, val_loader, test_loader, marked_loader = setup_model_dataset(
             args)
+    
+    
+    if args.lora=='YES':
+        print("Loading_LoRa_Model")
+        model = resnet18(num_classes=10)
+        resnet18_config = ResnetConfig(num_classes=10)
+        # resnet18_config.save_pretrained("custom-resnet")
+        resnet_18 = ResnetModelForImageClassification(config=resnet18_config, pruned_model = model)
+        resnet_18.cuda()
+        config = LoraConfig(
+                                r=50,
+                                lora_alpha=16,
+                                target_modules=['model.conv1',
+                                                'model.layer1.0.conv1',
+                                                'model.layer1.0.conv2',
+                                                'model.layer1.1.conv1',
+                                                'model.layer1.1.conv2',
+                                                'model.layer2.0.conv1',
+                                                'model.layer2.0.conv2',
+                                                'model.layer2.1.conv1',
+                                                'model.layer2.1.conv2',
+                                                'model.layer3.0.conv1',
+                                                'model.layer3.0.conv2',
+                                                'model.layer3.1.conv1',
+                                                'model.layer3.1.conv2',
+                                                'model.layer4.0.conv1',
+                                                'model.layer4.0.conv2',
+                                                'model.layer4.1.conv1',
+                                                'model.layer4.1.conv2',
+                                                'model.layer4.1.conv2',
+                                                'model.fc'
+                                                ],
+                                lora_dropout=0.1,
+                                bias="none",
+                                modules_to_save=["classifier"],
+                            )
+        lora_model = get_peft_model(resnet_18, config)
+        model = lora_model
+    
     model.cuda()
-
     criterion = nn.CrossEntropyLoss()
     decreasing_lr = list(map(int, args.decreasing_lr.split(',')))
 
