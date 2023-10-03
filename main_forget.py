@@ -242,16 +242,16 @@ def main():
             lora_model = get_peft_model(resnet_18, config)
             print("lora_model_loaded")
             model = lora_model
-        else:
-            print("Without LoRA method")
-            if 'state_dict' in checkpoint.keys():
-                checkpoint = checkpoint['state_dict']
-            current_mask = pruner.extract_mask(checkpoint)
-            pruner.prune_model_custom(model, current_mask)
-            # pruner.check_sparsity(model)
+        # else:
+        print("Without LoRA method")
+        if 'state_dict' in checkpoint.keys():
+            checkpoint = checkpoint['state_dict']
+        current_mask = pruner.extract_mask(checkpoint)
+        pruner.prune_model_custom(model, current_mask)
+        # pruner.check_sparsity(model)
 
-            if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
-                model.load_state_dict(checkpoint, strict=False)
+        if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
+            model.load_state_dict(checkpoint, strict=False)
 
         pruner.check_sparsity(model)
         print_trainable_parameters(model)
