@@ -182,32 +182,32 @@ def main():
         
         if args.lora=='YES':
             print("Adding LoRA training mode")
-            # model_state_dict = model.state_dict()
+            model_state_dict = model.state_dict()
 
-            # for key in checkpoint['state_dict'].keys():
-            #     if "mask" in key or 'orig' in key:
-            #         raw_key = key.split('_')[0]
-            #         orig_w_key = raw_key + '_orig'
-            #         mask_w_key = raw_key + '_mask'
+            for key in checkpoint['state_dict'].keys():
+                if "mask" in key or 'orig' in key:
+                    raw_key = key.split('_')[0]
+                    orig_w_key = raw_key + '_orig'
+                    mask_w_key = raw_key + '_mask'
 
-            #         # Check if orig and mask keys exist in the checkpoint
-            #         if orig_w_key not in checkpoint['state_dict'] or mask_w_key not in checkpoint['state_dict']:
-            #             raise KeyError(f"Missing orig/mask keys for {raw_key}")
+                    # Check if orig and mask keys exist in the checkpoint
+                    if orig_w_key not in checkpoint['state_dict'] or mask_w_key not in checkpoint['state_dict']:
+                        raise KeyError(f"Missing orig/mask keys for {raw_key}")
 
-            #         # Extract original weight (A) and mask (B)
-            #         A = checkpoint['state_dict'][orig_w_key]
-            #         B = checkpoint['state_dict'][mask_w_key]
+                    # Extract original weight (A) and mask (B)
+                    A = checkpoint['state_dict'][orig_w_key]
+                    B = checkpoint['state_dict'][mask_w_key]
                     
-            #         # Check if A and B have compatible shapes
-            #         if A.shape != B.shape:
-            #             raise ValueError(f"Shapes of {orig_w_key} and {mask_w_key} do not match")
+                    # Check if A and B have compatible shapes
+                    if A.shape != B.shape:
+                        raise ValueError(f"Shapes of {orig_w_key} and {mask_w_key} do not match")
 
-            #         # Perform pointwise multiplication and assign to the original key in the model's state_dict
-            #         model_state_dict[raw_key] = A.mul(B)
+                    # Perform pointwise multiplication and assign to the original key in the model's state_dict
+                    model_state_dict[raw_key] = A.mul(B)
 
-            #     else:
-            #         # Assign the same weight in the checkpoint to the model
-            #         model_state_dict[key] = checkpoint['state_dict'][key]
+                else:
+                    # Assign the same weight in the checkpoint to the model
+                    model_state_dict[key] = checkpoint['state_dict'][key]
                 
             target_modules=['model.conv1',
                         'model.layer1.0.conv1',
@@ -242,16 +242,16 @@ def main():
             lora_model = get_peft_model(resnet_18, config)
             print("lora_model_loaded")
             model = lora_model
-        # else:
-        print("Without LoRA method")
-        if 'state_dict' in checkpoint.keys():
-            checkpoint = checkpoint['state_dict']
-        current_mask = pruner.extract_mask(checkpoint)
-        pruner.prune_model_custom(model, current_mask)
-        # pruner.check_sparsity(model)
+        else:
+            print("Without LoRA method")
+            if 'state_dict' in checkpoint.keys():
+                checkpoint = checkpoint['state_dict']
+            current_mask = pruner.extract_mask(checkpoint)
+            pruner.prune_model_custom(model, current_mask)
+            # pruner.check_sparsity(model)
 
-        if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
-            model.load_state_dict(checkpoint, strict=False)
+            if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
+                model.load_state_dict(checkpoint, strict=False)
 
         pruner.check_sparsity(model)
         print_trainable_parameters(model)
