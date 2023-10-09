@@ -19,6 +19,7 @@ def l2_regularization(model):
     return torch.linalg.norm(torch.cat(params_vec), ord=2)
 
 def FT_iter(data_loaders, model, criterion, optimizer, epoch, args, with_l1=False):
+    print("FT_iter")
     train_loader = data_loaders["retain"]
 
     losses = utils.AverageMeter()
