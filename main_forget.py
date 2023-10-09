@@ -253,23 +253,12 @@ def main():
             if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
                 model.load_state_dict(checkpoint, strict=False)
 
-        param_frozen_list = [] # should be changed into torch.nn.ParameterList()
-        param_active_list = [] # should be changed into torch.nn.ParameterList()
-
-        for name, param in model.named_parameters():
-            if name == 'frozen_condition':
-                param_frozen_list.append(param)
-            elif name == 'active_condition':
-                param_active_list.append(param) 
-            else:
-                continue
-        
-        print(param_frozen_list, param_active_list)
         
         pruner.check_sparsity(model)
         print_trainable_parameters(model)
         
         unlearn_method = unlearn.get_unlearn_method(args.unlearn)
+        print("unlearn_method: ",unlearn_method)
 
         unlearn_method(unlearn_data_loaders, model, criterion, args)
         unlearn.save_unlearn_checkpoint(model, None, args)
