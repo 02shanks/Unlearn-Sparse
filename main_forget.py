@@ -232,7 +232,7 @@ def main():
             resnet18_config = ResnetConfig(num_classes=10)
             resnet_18 = ResnetModelForImageClassification(config=resnet18_config, pruned_model = model)
             config = LoraConfig(
-                                r=2,
+                                r=16,
                                 lora_alpha=16,
                                 target_modules=target_modules,
                                 lora_dropout=0.1,
