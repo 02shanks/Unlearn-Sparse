@@ -258,7 +258,7 @@ def main():
         print_trainable_parameters(model)
         
         unlearn_method = unlearn.get_unlearn_method(args.unlearn)
-        print("unlearn_method: ",unlearn_method)
+        # print("unlearn_method: ",unlearn_method)
 
         unlearn_method(unlearn_data_loaders, model, criterion, args)
         unlearn.save_unlearn_checkpoint(model, None, args)
@@ -269,6 +269,7 @@ def main():
     if 'new_accuracy' not in evaluation_result:
         accuracy = {}
         for name, loader in unlearn_data_loaders.items():
+            print(name)
             utils.dataset_convert_to_test(loader.dataset,args)
             val_acc = validate(loader, model, criterion, args)
             accuracy[name] = val_acc
