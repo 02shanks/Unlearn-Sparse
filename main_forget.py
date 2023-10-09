@@ -269,7 +269,7 @@ def main():
     if 'new_accuracy' not in evaluation_result:
         accuracy = {}
         for name, loader in unlearn_data_loaders.items():
-            print(name)
+            print("**********",name,"**********")
             utils.dataset_convert_to_test(loader.dataset,args)
             val_acc = validate(loader, model, criterion, args)
             accuracy[name] = val_acc
