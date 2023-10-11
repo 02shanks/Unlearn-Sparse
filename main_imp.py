@@ -102,44 +102,6 @@ def main():
         model, train_loader, val_loader, test_loader, marked_loader = setup_model_dataset(
             args)
     
-    
-    if args.lora=='YES':
-        print("Loading_LoRa_Model")
-        model = resnet18(num_classes=10)
-        resnet18_config = ResnetConfig(num_classes=10)
-        # resnet18_config.save_pretrained("custom-resnet")
-        resnet_18 = ResnetModelForImageClassification(config=resnet18_config, pruned_model = model)
-        resnet_18.cuda()
-        config = LoraConfig(
-                                r=50,
-                                lora_alpha=16,
-                                target_modules=['model.conv1',
-                                                'model.layer1.0.conv1',
-                                                'model.layer1.0.conv2',
-                                                'model.layer1.1.conv1',
-                                                'model.layer1.1.conv2',
-                                                'model.layer2.0.conv1',
-                                                'model.layer2.0.conv2',
-                                                'model.layer2.1.conv1',
-                                                'model.layer2.1.conv2',
-                                                'model.layer3.0.conv1',
-                                                'model.layer3.0.conv2',
-                                                'model.layer3.1.conv1',
-                                                'model.layer3.1.conv2',
-                                                'model.layer4.0.conv1',
-                                                'model.layer4.0.conv2',
-                                                'model.layer4.1.conv1',
-                                                'model.layer4.1.conv2',
-                                                'model.layer4.1.conv2',
-                                                'model.fc'
-                                                ],
-                                lora_dropout=0.1,
-                                bias="none",
-                                modules_to_save=["classifier"],
-                            )
-        lora_model = get_peft_model(resnet_18, config)
-        model = lora_model
-    
     model.cuda()
     criterion = nn.CrossEntropyLoss()
     decreasing_lr = list(map(int, args.decreasing_lr.split(',')))
