@@ -28,8 +28,7 @@ from trainer import train, validate
 from utils import *
 from pruner import *
 
-from transformers import PretrainedConfig, PreTrainedModel
-from peft import LoraConfig, get_peft_model
+from transformers import AutoImageProcessor, ResNetForImageClassification
 from typing import List
 from models.ResNet import *
 
@@ -38,56 +37,11 @@ import arg_parser
 
 best_sa = 0
 
-class ResnetConfig(PretrainedConfig):
-    model_type = "resnet"
-
-    def __init__(
-        self,
-        num_classes=1000,
-        zero_init_residual=False,
-        groups=1,
-        width_per_group=64,
-        replace_stride_with_dilation=None,
-        norm_layer=None,
-        imagenet=False,
-        **kwargs,
-    ):
-        if norm_layer is None:
-            self.norm_layer = nn.BatchNorm2d
-
-        if replace_stride_with_dilation is None:
-            # each element in the tuple indicates if we should replace
-            # the 2x2 stride with a dilated convolution instead
-            self.replace_stride_with_dilation = [False, False, False]
-
-
-
-        self.layers = [2, 2, 2, 2]
-        self.num_classes = num_classes
-        self.groups = groups
-        self.width_per_group = width_per_group
-        super().__init__(**kwargs)
-
-
-class ResnetModelForImageClassification(PreTrainedModel):
-    config_class = ResnetConfig
-
-    def __init__(self, config, pruned_model):
-        super().__init__(config)
-        self.model = pruned_model
-
-    def forward(self, tensor):
-        return self.model.forward(tensor)
-
-
-
-
-
-
 def main():
     global args, best_sa
     args = arg_parser.parse_args()
     print(args)
+
 
     torch.cuda.set_device(int(args.gpu))
     os.makedirs(args.save_dir, exist_ok=True)
@@ -101,7 +55,11 @@ def main():
     else:
         model, train_loader, val_loader, test_loader, marked_loader = setup_model_dataset(
             args)
-    
+        
+    if args.hf_resnet:
+        print("loading hf_resnet model")
+        model = ResNetForImageClassification.from_pretrained("microsoft/resnet-50")
+
     model.cuda()
     criterion = nn.CrossEntropyLoss()
     decreasing_lr = list(map(int, args.decreasing_lr.split(',')))
