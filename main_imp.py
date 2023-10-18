@@ -56,7 +56,7 @@ def main():
         model, train_loader, val_loader, test_loader, marked_loader = setup_model_dataset(
             args)
         
-    if args.hf_resnet=='True':
+    if args.hf_resnet=='YES':
         print("loading hf_resnet model")
         model = ResNetForImageClassification.from_pretrained("microsoft/resnet-50")
 
