@@ -73,6 +73,8 @@ def parse_args():
                         type=int, help='rewind checkpoint')
     parser.add_argument('--rewind_pth', default=None,
                         type=str, help='rewind checkpoint to load')
+    parser.add_argument('--hf_resnet', default='NO', type=str, 
+                        choices=['YES', 'NO'], help='lora method')
 
     ##################################### Unlearn setting #################################################
     parser.add_argument('--unlearn', type=str,
