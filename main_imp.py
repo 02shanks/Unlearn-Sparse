@@ -129,8 +129,8 @@ def main():
         start_epoch = 0
         start_state = 0
         
-    for key in model.state_dict().keys():
-        print(key)
+    # for key in model.state_dict().keys():
+    #     print(key)
 
     print('######################################## Start Standard Training Iterative Pruning ########################################')
 

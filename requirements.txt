@@ -1,0 +1,13 @@
+datasets==2.14.6
+einops==0.7.0
+lmdb==1.4.1
+matplotlib==3.7.1
+numpy==1.23.5
+peft==0.6.0.dev0
+Pillow==9.4.0
+scikit_learn==1.2.2
+six==1.16.0
+torch==2.1.0+cu118
+torchvision==0.16.0+cu118
+tqdm==4.66.1
+transformers==4.34.1
