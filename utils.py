@@ -119,7 +119,7 @@ def setup_model_dataset(args):
         setup_seed(args.train_seed)
 
         model.normalize = normalization
-        print(model)
+        # print(model)
         return model, train_full_loader, val_loader, test_loader, marked_loader
     elif args.dataset == 'svhn':
         classes = 10
@@ -221,7 +221,7 @@ def setup_model_dataset(args):
         model = model_dict[args.arch](num_classes=classes)
 
     model.normalize = normalization
-    print(model)
+    # print(model)
 
     return model, train_set_loader, val_loader, test_loader
 

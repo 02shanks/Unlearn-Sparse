@@ -58,6 +58,7 @@ def main():
     else:
         model, train_loader, val_loader, test_loader, marked_loader = setup_model_dataset(
             args)
+        print(train_loader)
         
     if args.hf_resnet=='YES':
         print("loading hf_resnet model")
