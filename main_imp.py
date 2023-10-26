@@ -41,6 +41,9 @@ def main():
     global args, best_sa
     args = arg_parser.parse_args()
     print(args)
+    print('class_to_replace',args.class_to_replace)
+    print('num_indexes_to_replace',args.num_indexes_to_replace) 
+    print('indexes_to_replace',args.indexes_to_replace)
 
 
     torch.cuda.set_device(int(args.gpu))
