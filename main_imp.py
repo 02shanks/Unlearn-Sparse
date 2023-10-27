@@ -245,8 +245,8 @@ def main():
             for _ in range(args.rewind_epoch):
                 scheduler.step()
                 
-    for key in model.state_dict().keys():
-        print(key)
+    # for key in model.state_dict().keys():
+    #     print(key)
 
 
 if __name__ == '__main__':
