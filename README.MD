@@ -2,15 +2,15 @@
 
 ## Pruning
 
-### OMP
+### One-shot Magnitude Pruning (OMP)
 
 ```python -u main_imp.py --data ./data --dataset $data --arch $arch --prune_type rewind_lt --rewind_epoch 8 --save_dir ${save_dir} --rate ${rate} --pruning_times 2 --num_workers 8```
 
-### IMP
+### Iterative Magnitude Pruning (IMP)
 
 ```python -u main_imp.py --data ./data --dataset $data --arch $arch --prune_type rewind_lt --rewind_epoch 8 --save_dir ${save_dir} --rate 0.2 --pruning_times ${pruning_times} --num_workers 8```
 
-### SynFlow
+### Synaptic Flow Pruning (SynFlow)
 
 ```python -u main_synflow.py --data ./data --dataset cifar10 --prune_type rewind_lt --rewind_epoch 8 --save_dir ${save_dir} --rate ${rate} --pruning_times 1 --num_workers 8```
 
