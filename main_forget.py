@@ -179,9 +179,9 @@ def main():
     if args.resume and checkpoint is not None:
         model, evaluation_result = checkpoint
     else:
-        checkpoint = torch.load(args.mask, map_location=device)
         
         if args.lora=='YES':
+            checkpoint = torch.load(args.mask, map_location=device)
             print("Adding LoRA training mode")
             model_state_dict = model.state_dict()
 
@@ -244,8 +244,17 @@ def main():
             lora_model = get_peft_model(resnet_18, config)
             print("lora_model_loaded")
             model = lora_model
+        elif args.hf_vit=="YES":
+            print("load_vit_model")
+            id2label = {0: 'airplane', 1: 'automobile', 2: 'bird', 3: 'cat', 4: 'deer', 5: 'dog', 6: 'frog', 7: 'horse', 8: 'ship', 9: 'truck'}
+            label2id = {'airplane': 0, 'automobile': 1, 'bird': 2, 'cat': 3, 'deer': 4, 'dog': 5, 'frog': 6, 'horse': 7, 'ship': 8, 'truck': 9}
+            processor = ViTImageProcessor.from_pretrained('02shanky/vit-finetuned-cifar10')
+            model = ViTForImageClassification.from_pretrained('02shanky/vit-finetuned-cifar10',
+                                                  id2label=id2label,
+                                                  label2id=label2id)
         else:
             print("Without LoRA method")
+            checkpoint = torch.load(args.mask, map_location=device)
             if 'state_dict' in checkpoint.keys():
                 checkpoint = checkpoint['state_dict']
             current_mask = pruner.extract_mask(checkpoint)
@@ -255,13 +264,7 @@ def main():
             if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
                 model.load_state_dict(checkpoint, strict=False)
 
-        if args.hf_vit=="YES":
-            id2label = {0: 'airplane', 1: 'automobile', 2: 'bird', 3: 'cat', 4: 'deer', 5: 'dog', 6: 'frog', 7: 'horse', 8: 'ship', 9: 'truck'}
-            label2id = {'airplane': 0, 'automobile': 1, 'bird': 2, 'cat': 3, 'deer': 4, 'dog': 5, 'frog': 6, 'horse': 7, 'ship': 8, 'truck': 9}
-            processor = ViTImageProcessor.from_pretrained('02shanky/vit-finetuned-cifar10')
-            model = ViTForImageClassification.from_pretrained('02shanky/vit-finetuned-cifar10',
-                                                  id2label=id2label,
-                                                  label2id=label2id)
+        
         
         
         
