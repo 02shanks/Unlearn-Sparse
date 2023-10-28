@@ -374,28 +374,37 @@ class TinyImageNet:
         return train_loader, val_loader, test_loader
 
 
-def cifar10_dataloaders(batch_size=128, data_dir='datasets/cifar10', num_workers=2, class_to_replace: int = None, num_indexes_to_replace=None, indexes_to_replace=None, seed: int = 1, only_mark: bool = False, shuffle=True, no_aug=False):
+def cifar10_dataloaders(args ,batch_size=128, data_dir='datasets/cifar10', num_workers=2, class_to_replace: int = None, num_indexes_to_replace=None, indexes_to_replace=None, seed: int = 1, only_mark: bool = False, shuffle=True, no_aug=False):
 
     if no_aug:
         train_transform = transforms.Compose([
             transforms.ToTensor(),
         ])
     else:
-        train_transform = transforms.Compose([
-            # transforms.RandomCrop(32, padding=4),
-            transforms.RandomResizedCrop(224),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-        ])
-
-    # test_transform = transforms.Compose([
-    #     transforms.ToTensor(),
-    # ])
-    
-    test_transform = transforms.Compose([
+        if args.hf_vit:
+            train_transform = transforms.Compose([
+                transforms.RandomResizedCrop(224),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+            ])
+        else:
+            train_transform = transforms.Compose([
+                transforms.RandomCrop(32, padding=4),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+            ])
+            
+    if args.hf_vit:
+        test_transform = transforms.Compose([
         transforms.Resize(224),
         transforms.ToTensor(),
-    ])
+        ])
+    else:
+        test_transform = transforms.Compose([
+        transforms.ToTensor(),
+        ])
+    
+    
 
     print('Dataset information: CIFAR-10\t 45000 images for training \t 5000 images for validation\t')
     print('10000 images for testing\t no normalize applied in data_transform')

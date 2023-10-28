@@ -41,7 +41,10 @@ def train(train_loader, model, criterion, optimizer, epoch, args, l1=False):
                                 one_epoch_step=len(train_loader), args=args)
             # compute output
             output_clean = model(image)
-
+            
+            if args.hf_vit=="YES":
+                print(output_clean)
+                
             loss = criterion(output_clean, target)
             if l1:
                 loss = loss + args.alpha * l1_regularization(model)
