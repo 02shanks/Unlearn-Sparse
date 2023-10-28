@@ -14,7 +14,8 @@ import evaluation
 
 import arg_parser
 
-from transformers import PretrainedConfig, PreTrainedModel
+from transformers import PretrainedConfig, PreTrainedModel, TrainingArguments, Trainer
+from transformers import ViTImageProcessor, ViTForImageClassification, AutoModelForSequenceClassification
 from peft import LoraConfig, get_peft_model
 from typing import List
 import torch
@@ -254,6 +255,15 @@ def main():
             if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
                 model.load_state_dict(checkpoint, strict=False)
 
+        if args.hf_vit=="YES":
+            id2label = {0: 'airplane', 1: 'automobile', 2: 'bird', 3: 'cat', 4: 'deer', 5: 'dog', 6: 'frog', 7: 'horse', 8: 'ship', 9: 'truck'}
+            label2id = {'airplane': 0, 'automobile': 1, 'bird': 2, 'cat': 3, 'deer': 4, 'dog': 5, 'frog': 6, 'horse': 7, 'ship': 8, 'truck': 9}
+            processor = ViTImageProcessor.from_pretrained('02shanky/vit-finetuned-cifar10')
+            model = ViTForImageClassification.from_pretrained('02shanky/vit-finetuned-cifar10',
+                                                  id2label=id2label,
+                                                  label2id=label2id)
+        
+        
         
         pruner.check_sparsity(model)
         print_trainable_parameters(model)
