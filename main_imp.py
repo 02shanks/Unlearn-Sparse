@@ -154,6 +154,7 @@ def main():
         model = ViTForImageClassification.from_pretrained('02shanky/vit-finetuned-cifar10',
                                                 id2label=id2label,
                                                 label2id=label2id)
+        model.cuda()
 
     print(
         "######################################## Start Standard Training Iterative Pruning ########################################"
