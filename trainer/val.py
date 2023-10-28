@@ -17,8 +17,6 @@ def validate(val_loader, model, criterion, args):
             image, target = get_x_y_from_data_dict(data, device)
             with torch.no_grad():
                 output = model(image)
-                if args.hf_vit=="YES":
-                    output = output.logits
                     
                 loss = criterion(output, target)
 
@@ -47,6 +45,8 @@ def validate(val_loader, model, criterion, args):
             # compute output
             with torch.no_grad():
                 output = model(image)
+                if args.hf_vit=="YES":
+                    output = output.logits
                 loss = criterion(output, target)
 
             output = output.float()
