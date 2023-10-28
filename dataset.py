@@ -382,12 +382,18 @@ def cifar10_dataloaders(batch_size=128, data_dir='datasets/cifar10', num_workers
         ])
     else:
         train_transform = transforms.Compose([
-            transforms.RandomCrop(224, padding=4),
+            # transforms.RandomCrop(32, padding=4),
+            transforms.RandomResizedCrop(224),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
         ])
 
+    # test_transform = transforms.Compose([
+    #     transforms.ToTensor(),
+    # ])
+    
     test_transform = transforms.Compose([
+        transforms.Resize(224),
         transforms.ToTensor(),
     ])
 
