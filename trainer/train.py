@@ -81,10 +81,11 @@ def train(train_loader, model, criterion, optimizer, epoch, args, l1=False):
             output_clean = model(image)
             
             if args.hf_vit=="YES":
-                output_clean = output_clean.logit
                 print(output_clean)
+                output_clean = output_clean.logits
+                
 
-            loss = criterion(output_clean.logit, target)
+            loss = criterion(output_clean.logits, target)
             if l1:
                 loss = loss + args.alpha * l1_regularization(model)
             optimizer.zero_grad()
