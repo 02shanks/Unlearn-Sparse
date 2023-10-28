@@ -81,7 +81,7 @@ def train(train_loader, model, criterion, optimizer, epoch, args, l1=False):
             output_clean = model(image)
             
             if args.hf_vit=="YES":
-                print(output_clean)
+                # print(output_clean)
                 output_clean = output_clean.logits
                 
 
