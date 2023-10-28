@@ -179,7 +179,6 @@ def main():
     if args.resume and checkpoint is not None:
         model, evaluation_result = checkpoint
     else:
-        
         if args.lora=='YES':
             checkpoint = torch.load(args.mask, map_location=device)
             print("Adding LoRA training mode")
