@@ -15,7 +15,6 @@ import evaluation
 import arg_parser
 
 from transformers import PretrainedConfig, PreTrainedModel, TrainingArguments, Trainer
-from transformers import ViTImageProcessor, ViTForImageClassification, AutoModelForSequenceClassification
 from peft import LoraConfig, get_peft_model
 from typing import List
 import torch
@@ -243,14 +242,7 @@ def main():
             lora_model = get_peft_model(resnet_18, config)
             print("lora_model_loaded")
             model = lora_model
-        elif args.hf_vit=="YES":
-            print("load_vit_model")
-            id2label = {0: 'airplane', 1: 'automobile', 2: 'bird', 3: 'cat', 4: 'deer', 5: 'dog', 6: 'frog', 7: 'horse', 8: 'ship', 9: 'truck'}
-            label2id = {'airplane': 0, 'automobile': 1, 'bird': 2, 'cat': 3, 'deer': 4, 'dog': 5, 'frog': 6, 'horse': 7, 'ship': 8, 'truck': 9}
-            processor = ViTImageProcessor.from_pretrained('02shanky/vit-finetuned-cifar10')
-            model = ViTForImageClassification.from_pretrained('02shanky/vit-finetuned-cifar10',
-                                                  id2label=id2label,
-                                                  label2id=label2id)
+        
         else:
             print("Without LoRA method")
             checkpoint = torch.load(args.mask, map_location=device)

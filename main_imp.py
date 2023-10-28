@@ -28,6 +28,7 @@ from pruner import *
 from trainer import train, validate
 from utils import *
 from utils import NormalizeByChannelMeanStd
+from transformers import ViTImageProcessor, ViTForImageClassification, AutoModelForSequenceClassification
 
 best_sa = 0
 
@@ -134,7 +135,7 @@ def main():
         initalization = checkpoint["init_weight"]
         print("loading state:", start_state)
         print("loading from epoch: ", start_epoch, "best_sa=", best_sa)
-
+    
     else:
         all_result = {}
         all_result["train_ta"] = []
@@ -143,6 +144,16 @@ def main():
 
         start_epoch = 0
         start_state = 0
+        
+    print("hf_vit", args.hf_vit)
+    if args.hf_vit=="YES":
+        print("load_vit_model")
+        id2label = {0: 'airplane', 1: 'automobile', 2: 'bird', 3: 'cat', 4: 'deer', 5: 'dog', 6: 'frog', 7: 'horse', 8: 'ship', 9: 'truck'}
+        label2id = {'airplane': 0, 'automobile': 1, 'bird': 2, 'cat': 3, 'deer': 4, 'dog': 5, 'frog': 6, 'horse': 7, 'ship': 8, 'truck': 9}
+        processor = ViTImageProcessor.from_pretrained('02shanky/vit-finetuned-cifar10')
+        model = ViTForImageClassification.from_pretrained('02shanky/vit-finetuned-cifar10',
+                                                id2label=id2label,
+                                                label2id=label2id)
 
     print(
         "######################################## Start Standard Training Iterative Pruning ########################################"
