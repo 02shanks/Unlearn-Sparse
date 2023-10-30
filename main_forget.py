@@ -193,37 +193,73 @@ def main():
     if args.resume and checkpoint is not None:
         model, evaluation_result = checkpoint
     else:
-        if args.lora=='YES':
-            checkpoint = torch.load(args.mask, map_location=device)
-            print("Adding LoRA training mode")
-            model_state_dict = model.state_dict()
+        if args.arch=="resnet18":
+            # checkpoint = torch.load(args.mask, map_location=device)
+            # print("Adding LoRA training mode")
+            # model_state_dict = model.state_dict()
 
-            for key in checkpoint['state_dict'].keys():
-                if "mask" in key or 'orig' in key:
-                    raw_key = key.split('_')[0]
-                    orig_w_key = raw_key + '_orig'
-                    mask_w_key = raw_key + '_mask'
+            # for key in checkpoint['state_dict'].keys():
+            #     if "mask" in key or 'orig' in key:
+            #         raw_key = key.split('_')[0]
+            #         orig_w_key = raw_key + '_orig'
+            #         mask_w_key = raw_key + '_mask'
 
-                    # Check if orig and mask keys exist in the checkpoint
-                    if orig_w_key not in checkpoint['state_dict'] or mask_w_key not in checkpoint['state_dict']:
-                        raise KeyError(f"Missing orig/mask keys for {raw_key}")
+            #         # Check if orig and mask keys exist in the checkpoint
+            #         if orig_w_key not in checkpoint['state_dict'] or mask_w_key not in checkpoint['state_dict']:
+            #             raise KeyError(f"Missing orig/mask keys for {raw_key}")
 
-                    # Extract original weight (A) and mask (B)
-                    A = checkpoint['state_dict'][orig_w_key]
-                    B = checkpoint['state_dict'][mask_w_key]
+            #         # Extract original weight (A) and mask (B)
+            #         A = checkpoint['state_dict'][orig_w_key]
+            #         B = checkpoint['state_dict'][mask_w_key]
                     
-                    # Check if A and B have compatible shapes
-                    if A.shape != B.shape:
-                        raise ValueError(f"Shapes of {orig_w_key} and {mask_w_key} do not match")
+            #         # Check if A and B have compatible shapes
+            #         if A.shape != B.shape:
+            #             raise ValueError(f"Shapes of {orig_w_key} and {mask_w_key} do not match")
 
-                    # Perform pointwise multiplication and assign to the original key in the model's state_dict
-                    model_state_dict[raw_key] = A.mul(B)
+            #         # Perform pointwise multiplication and assign to the original key in the model's state_dict
+            #         model_state_dict[raw_key] = A.mul(B)
 
-                else:
-                    # Assign the same weight in the checkpoint to the model
-                    model_state_dict[key] = checkpoint['state_dict'][key]
+            #     else:
+            #         # Assign the same weight in the checkpoint to the model
+            #         model_state_dict[key] = checkpoint['state_dict'][key]
                 
-            target_modules=[
+            # target_modules=[
+            #             'model.conv1',
+            #             'model.layer1.0.conv1',
+            #             'model.layer1.0.conv2',
+            #             'model.layer1.1.conv1',
+            #             'model.layer1.1.conv2',
+            #             'model.layer2.0.conv1',
+            #             'model.layer2.0.conv2',
+            #             'model.layer2.1.conv1',
+            #             'model.layer2.1.conv2',
+            #             'model.layer3.0.conv1',
+            #             'model.layer3.0.conv2',
+            #             'model.layer3.1.conv1',
+            #             'model.layer3.1.conv2',
+            #             'model.layer4.0.conv1',
+            #             'model.layer4.0.conv2',
+            #             'model.layer4.1.conv1',
+            #             'model.layer4.1.conv2',
+            #             'model.layer4.1.conv2',
+            #             'model.fc'
+            #             ]   
+            # resnet18_config = ResnetConfig(num_classes=10)
+            # resnet_18 = ResnetModelForImageClassification(config=resnet18_config, pruned_model = model)
+            print("Loading_vit_prunned_model")
+            checkpoint = torch.load(args.mask, map_location=device)
+            if 'state_dict' in checkpoint.keys():
+                checkpoint = checkpoint['state_dict']
+            current_mask = pruner.extract_mask(checkpoint)
+            pruner.prune_model_custom(model, current_mask, args)
+            # pruner.check_sparsity(model)
+
+            if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
+                model.load_state_dict(checkpoint, strict=False)
+                
+            if args.lora=='YES':
+                print("RESNET_LoRA method")
+                target_modules=[
                         'model.conv1',
                         'model.layer1.0.conv1',
                         'model.layer1.0.conv2',
@@ -243,11 +279,8 @@ def main():
                         'model.layer4.1.conv2',
                         'model.layer4.1.conv2',
                         'model.fc'
-                        ]   
-            resnet18_config = ResnetConfig(num_classes=10)
-            resnet_18 = ResnetModelForImageClassification(config=resnet18_config, pruned_model = model)
-            print("lora_model_loaded")
-            model = add_lora(resnet_18,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
+                        ]
+                model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
             
         elif args.hf_vit=="YES":
             print("Loading_vit_prunned_model")
