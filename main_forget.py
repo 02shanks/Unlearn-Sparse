@@ -250,10 +250,9 @@ def main():
             model = add_lora(resnet_18,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
             
         elif args.hf_vit=="YES":
-            print("Loading_prunnd_model")
+            print("Loading_vit_prunned_model")
             id2label = {0: 'airplane', 1: 'automobile', 2: 'bird', 3: 'cat', 4: 'deer', 5: 'dog', 6: 'frog', 7: 'horse', 8: 'ship', 9: 'truck'}
             label2id = {'airplane': 0, 'automobile': 1, 'bird': 2, 'cat': 3, 'deer': 4, 'dog': 5, 'frog': 6, 'horse': 7, 'ship': 8, 'truck': 9}
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             checkpoint = torch.load(args.mask, map_location=device)
             model_vit = ViTForImageClassification.from_pretrained('02shanky/vit-finetuned-cifar10',
                                                             id2label=id2label,
