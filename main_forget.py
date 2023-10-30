@@ -257,7 +257,7 @@ def main():
             model_vit = ViTForImageClassification.from_pretrained('02shanky/vit-finetuned-cifar10',
                                                             id2label=id2label,
                                                             label2id=label2id)
-            model.to(device)
+            model_vit.to(device)
             #load pruned model
             current_mask = pruner.extract_mask(checkpoint['state_dict'])
             print(device)
