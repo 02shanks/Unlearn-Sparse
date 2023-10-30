@@ -254,16 +254,16 @@ def main():
             id2label = {0: 'airplane', 1: 'automobile', 2: 'bird', 3: 'cat', 4: 'deer', 5: 'dog', 6: 'frog', 7: 'horse', 8: 'ship', 9: 'truck'}
             label2id = {'airplane': 0, 'automobile': 1, 'bird': 2, 'cat': 3, 'deer': 4, 'dog': 5, 'frog': 6, 'horse': 7, 'ship': 8, 'truck': 9}
             checkpoint = torch.load(args.mask, map_location=device)
-            model_vit = ViTForImageClassification.from_pretrained('02shanky/vit-finetuned-cifar10',
+            model = ViTForImageClassification.from_pretrained('02shanky/vit-finetuned-cifar10',
                                                             id2label=id2label,
                                                             label2id=label2id)
-            model_vit.to(device)
+            model.to(device)
             #load pruned model
             current_mask = pruner.extract_mask(checkpoint['state_dict'])
             print(device)
-            pruner.prune_model_custom(model_vit, current_mask,args)
+            pruner.prune_model_custom(model, current_mask,args)
             # Load the model's state_dict from the checkpoint
-            model = model_vit.load_state_dict(checkpoint['state_dict'], strict=False)
+            model.load_state_dict(checkpoint['state_dict'], strict=False)
         else:
             print("Without LoRA method")
             checkpoint = torch.load(args.mask, map_location=device)
