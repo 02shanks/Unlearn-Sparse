@@ -377,9 +377,16 @@ class TinyImageNet:
 def cifar10_dataloaders(args ,batch_size=128, data_dir='datasets/cifar10', num_workers=2, class_to_replace: int = None, num_indexes_to_replace=None, indexes_to_replace=None, seed: int = 1, only_mark: bool = False, shuffle=True, no_aug=False):
 
     if no_aug:
-        train_transform = transforms.Compose([
-            transforms.ToTensor(),
-        ])
+        if args.hf_vit:
+            train_transform = transforms.Compose([
+                transforms.RandomResizedCrop(224),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+            ])
+        else: 
+            train_transform = transforms.Compose([
+                transforms.ToTensor(),
+            ])
     else:
         if args.hf_vit:
             train_transform = transforms.Compose([
