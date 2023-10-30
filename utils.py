@@ -85,9 +85,19 @@ def dataset_convert_to_test(dataset,args=None):
         test_transform=transforms.Compose([
     ])
     else:
-        test_transform = transforms.Compose([
+        if args.hf_vit:
+            test_transform = transforms.Compose([
+            transforms.Resize(224),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
+            ])
+        else:
+            test_transform = transforms.Compose([
             transforms.ToTensor(),
         ])
+        
+        
     while hasattr(dataset, "dataset"):
         dataset = dataset.dataset
     dataset.transform = test_transform
