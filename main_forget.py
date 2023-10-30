@@ -269,7 +269,8 @@ def main():
             if 'state_dict' in checkpoint.keys():
                 checkpoint = checkpoint['state_dict']
             current_mask = pruner.extract_mask(checkpoint)
-            pruner.prune_model_custom(model, current_mask,args)
+            print(device)
+            pruner.prune_model_custom(model, current_mask, args)
             # pruner.check_sparsity(model)
 
             if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
