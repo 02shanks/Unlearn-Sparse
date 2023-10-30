@@ -84,7 +84,7 @@ def FT_iter(data_loaders, model, criterion, optimizer, epoch, args, with_l1=Fals
             # compute output
             output_clean = model(image)
             
-            if args.hf_vit=="YES":
+            if args.hf_vit=="YES" and args.lora=='NO':
                 output_clean = output_clean.logits
                 
             loss = criterion(output_clean, target)

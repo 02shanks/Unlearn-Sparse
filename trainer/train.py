@@ -80,7 +80,7 @@ def train(train_loader, model, criterion, optimizer, epoch, args, l1=False):
             # compute output
             output_clean = model(image)
             
-            if args.hf_vit=="YES":
+            if args.hf_vit=="YES" and args.lora=='NO':
                 output_clean = output_clean.logits
                 
 

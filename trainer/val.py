@@ -45,7 +45,7 @@ def validate(val_loader, model, criterion, args):
             # compute output
             with torch.no_grad():
                 output = model(image)
-                if args.hf_vit=="YES":
+                if args.hf_vit=="YES" and args.lora=='NO':
                     output = output.logits
                 loss = criterion(output, target)
 
