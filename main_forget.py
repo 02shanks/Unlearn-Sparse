@@ -246,7 +246,7 @@ def main():
             #             ]   
             # resnet18_config = ResnetConfig(num_classes=10)
             # resnet_18 = ResnetModelForImageClassification(config=resnet18_config, pruned_model = model)
-            print("Loading_vit_prunned_model")
+            print("Loading_RESNET_prunned_model")
             checkpoint = torch.load(args.mask, map_location=device)
             if 'state_dict' in checkpoint.keys():
                 checkpoint = checkpoint['state_dict']
@@ -280,6 +280,7 @@ def main():
                         'model.layer4.1.conv2',
                         'model.fc'
                         ]
+                print([name for name, m in model.named_modules()])
                 model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
             
         elif args.hf_vit=="YES":
