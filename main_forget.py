@@ -329,7 +329,7 @@ def main():
         evaluation_result['SVC_MIA_forget_efficacy'] = evaluation.SVC_MIA(
             shadow_train=shadow_train_loader, shadow_test=test_loader,
             target_train=None, target_test=forget_loader,
-            model=model)
+            model=model, args=args)
         unlearn.save_unlearn_checkpoint(model, evaluation_result, args)
 
     '''training privacy MIA:

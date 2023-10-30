@@ -21,7 +21,7 @@ def m_entropy(p, labels, dim=-1, keepdim=False):
     return -torch.sum(modified_probs*modified_log_probs, dim=dim, keepdim=keepdim)
 
 
-def collect_prob(data_loader, model):
+def collect_prob(data_loader, model, args):
     if data_loader is None:
         return torch.zeros([0, 10]), torch.zeros([0])
 
@@ -40,6 +40,8 @@ def collect_prob(data_loader, model):
                 data, target = get_x_y_from_data_dict(batch, device)
             with torch.no_grad():
                 output = model(data)
+                if args.hf_vit=="YES":
+                    output = output.logits
                 prob.append(F.softmax(output, dim=-1).data)
                 targets.append(target)
 
@@ -75,12 +77,12 @@ def SVC_fit_predict(shadow_train, shadow_test, target_train, target_test):
     return np.mean(accs)
 
 
-def SVC_MIA(shadow_train, target_train, target_test, shadow_test, model):
-    shadow_train_prob, shadow_train_labels = collect_prob(shadow_train, model)
-    shadow_test_prob, shadow_test_labels = collect_prob(shadow_test, model)
+def SVC_MIA(shadow_train, target_train, target_test, shadow_test, model, args):
+    shadow_train_prob, shadow_train_labels = collect_prob(shadow_train, model, args)
+    shadow_test_prob, shadow_test_labels = collect_prob(shadow_test, model,args)
 
-    target_train_prob, target_train_labels = collect_prob(target_train, model)
-    target_test_prob, target_test_labels = collect_prob(target_test, model)
+    target_train_prob, target_train_labels = collect_prob(target_train, model, args)
+    target_test_prob, target_test_labels = collect_prob(target_test, model, args)
 
     shadow_train_corr = (torch.argmax(shadow_train_prob, axis=1)
                          == shadow_train_labels).int()
