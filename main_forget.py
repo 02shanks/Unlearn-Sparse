@@ -203,12 +203,6 @@ def main():
         if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
             model.load_state_dict(checkpoint, strict=False)
             
-        if args.arch=="resnet18" and args.lora=='YES':
-            print("RESNET_LoRA method")
-            target_modules=['conv1','conv2','fc']
-            print([name for name, m in model.named_modules()])
-            model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
-            
         if args.hf_vit=="YES":
             print("Loading_vit_prunned_model")
             id2label = {0: 'airplane', 1: 'automobile', 2: 'bird', 3: 'cat', 4: 'deer', 5: 'dog', 6: 'frog', 7: 'horse', 8: 'ship', 9: 'truck'}
