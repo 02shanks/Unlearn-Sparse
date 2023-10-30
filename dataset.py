@@ -380,7 +380,6 @@ def cifar10_dataloaders(args ,batch_size=128, data_dir='datasets/cifar10', num_w
         if args.hf_vit:
             train_transform = transforms.Compose([
                 transforms.RandomResizedCrop(224),
-                transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
             ])
         else: 
@@ -393,6 +392,7 @@ def cifar10_dataloaders(args ,batch_size=128, data_dir='datasets/cifar10', num_w
                 transforms.RandomResizedCrop(224),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
+                transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
             ])
         else:
             train_transform = transforms.Compose([
@@ -404,7 +404,9 @@ def cifar10_dataloaders(args ,batch_size=128, data_dir='datasets/cifar10', num_w
     if args.hf_vit:
         test_transform = transforms.Compose([
         transforms.Resize(224),
+        transforms.CenterCrop(224),
         transforms.ToTensor(),
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
         ])
     else:
         test_transform = transforms.Compose([
