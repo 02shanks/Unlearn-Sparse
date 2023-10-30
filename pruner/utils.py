@@ -10,13 +10,18 @@ __all__ = ['pruning_model', 'pruning_model_random', 'prune_model_custom', 'remov
 
 
 # Pruning operation
-def pruning_model(model, px):
+def pruning_model(model, args):
 
+    px = args.rate
     print('Apply Unstructured L1 Pruning Globally (all conv layers)')
     parameters_to_prune = []
     for name, m in model.named_modules():
-        if isinstance(m, nn.Conv2d):
-            parameters_to_prune.append((m, 'weight'))
+        if args.hf_vit=="YES":
+            if "dense" in name.lower():
+                parameters_to_prune.append((m, 'weight'))
+        else: 
+            if isinstance(m, nn.Conv2d):
+                parameters_to_prune.append((m, 'weight'))
 
     parameters_to_prune = tuple(parameters_to_prune)
     prune.global_unstructured(
@@ -57,13 +62,18 @@ def pruning_model_structured_channel_wise(model, px):
             )
 
 
-def pruning_model_random(model, px):
-
+def pruning_model_random(model, args):
+    
+    px = args.rate
     print('Apply Unstructured Random Pruning Globally (all conv layers)')
     parameters_to_prune = []
     for name, m in model.named_modules():
-        if isinstance(m, nn.Conv2d):
-            parameters_to_prune.append((m, 'weight'))
+        if args.hf_vit=="YES":
+            if "dense" in name.lower():
+                parameters_to_prune.append((m, 'weight'))
+        else: 
+            if isinstance(m, nn.Conv2d):
+                parameters_to_prune.append((m, 'weight'))
 
     parameters_to_prune = tuple(parameters_to_prune)
     prune.global_unstructured(
@@ -73,25 +83,38 @@ def pruning_model_random(model, px):
     )
 
 
-def prune_model_custom(model, mask_dict):
+def prune_model_custom(model, mask_dict, args):
 
     print('Pruning with custom mask (all conv layers)')
     for name, m in model.named_modules():
-        if isinstance(m, nn.Conv2d):
-            mask_name = name+'.weight_mask'
-            if mask_name in mask_dict.keys():
-                prune.CustomFromMask.apply(
-                    m, 'weight', mask=mask_dict[name+'.weight_mask'])
-            else:
-                print('Can not find [{}] in mask_dict'.format(mask_name))
+        if args.hf_vit=="YES":
+            if "dense" in name.lower():
+                mask_name = name+'.weight_mask'
+                if mask_name in mask_dict.keys():
+                    prune.CustomFromMask.apply(
+                        m, 'weight', mask=mask_dict[name+'.weight_mask'])
+                else:
+                    print('Can not find [{}] in mask_dict'.format(mask_name))
+        else: 
+            if isinstance(m, nn.Conv2d):
+                mask_name = name+'.weight_mask'
+                if mask_name in mask_dict.keys():
+                    prune.CustomFromMask.apply(
+                        m, 'weight', mask=mask_dict[name+'.weight_mask'])
+                else:
+                    print('Can not find [{}] in mask_dict'.format(mask_name))
 
 
-def remove_prune(model):
+def remove_prune(model,args):
 
     print('Remove hooks for multiplying masks (all conv layers)')
     for name, m in model.named_modules():
-        if isinstance(m, nn.Conv2d):
-            prune.remove(m, 'weight')
+        if args.hf_vit=="YES":
+            if "dense" in name.lower():
+                prune.remove(m, 'weight')
+        else:
+            if isinstance(m, nn.Conv2d):
+                prune.remove(m, 'weight')
 
 
 # Mask operation function
@@ -117,15 +140,20 @@ def reverse_mask(mask_dict):
 # Mask statistic function
 
 
-def check_sparsity(model):
+def check_sparsity(model, args):
 
     sum_list = 0
     zero_sum = 0
 
     for name, m in model.named_modules():
-        if isinstance(m, nn.Conv2d):
-            sum_list = sum_list+float(m.weight.nelement())
-            zero_sum = zero_sum+float(torch.sum(m.weight == 0))
+        if args.hf_vit=="YES":
+            if "dense" in name.lower():
+                sum_list = sum_list+float(m.weight.nelement())
+                zero_sum = zero_sum+float(torch.sum(m.weight == 0))
+        else: 
+            if isinstance(m, nn.Conv2d):
+                sum_list = sum_list+float(m.weight.nelement())
+                zero_sum = zero_sum+float(torch.sum(m.weight == 0))
 
     if zero_sum:
         remain_weight_ratie = 100*(1-zero_sum/sum_list)

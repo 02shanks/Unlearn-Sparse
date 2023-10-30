@@ -111,8 +111,8 @@ def main():
         print(start_state)
         if start_state > 0:
             current_mask = extract_mask(checkpoint["state_dict"])
-            prune_model_custom(model, current_mask)
-            check_sparsity(model)
+            prune_model_custom(model, current_mask, args)
+            check_sparsity(model,args)
             optimizer = torch.optim.SGD(
                 model.parameters(),
                 args.lr,
@@ -165,7 +165,7 @@ def main():
         print("pruning state", state)
         print("******************************************")
 
-        check_sparsity(model)
+        check_sparsity(model,args)
         for epoch in range(start_epoch, args.epochs):
             start_time = time.time()
             print(optimizer.state_dict()["param_groups"][0]["lr"])
@@ -223,7 +223,7 @@ def main():
             print("one epoch duration:{}".format(time.time() - start_time))
 
         # report result
-        check_sparsity(model)
+        check_sparsity(model,args)
         print("Performance on the test data set")
         test_tacc = validate(val_loader, model, criterion, args)
         if len(all_result["val_ta"]) != 0:
@@ -251,19 +251,19 @@ def main():
         # pruning and rewind
         if args.random_prune:
             print("random pruning")
-            pruning_model_random(model, args.rate)
+            pruning_model_random(model, args)
         else:
             print("L1 pruning")
-            pruning_model(model, args.rate)
+            pruning_model(model, args)
 
-        remain_weight = check_sparsity(model)
+        remain_weight = check_sparsity(model,args)
         current_mask = extract_mask(model.state_dict())
-        remove_prune(model)
+        remove_prune(model,args)
 
         # weight rewinding
         # rewind, initialization is a full model architecture without masks
         model.load_state_dict(initalization, strict=False)
-        prune_model_custom(model, current_mask)
+        prune_model_custom(model, current_mask, args)
         optimizer = torch.optim.SGD(
             model.parameters(),
             args.lr,
