@@ -15,6 +15,7 @@ import evaluation
 import arg_parser
 
 from transformers import PretrainedConfig, PreTrainedModel, TrainingArguments, Trainer
+from transformers import ViTImageProcessor, ViTForImageClassification, AutoModelForSequenceClassification
 from peft import LoraConfig, get_peft_model
 from typing import List
 import torch
@@ -72,6 +73,20 @@ def print_trainable_parameters(model):
     print(
         f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param:.2f}"
     )
+
+def add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1):  
+    
+    config = LoraConfig(
+                        r=r,
+                        lora_alpha=lora_alpha,
+                        target_modules=target_modules,
+                        lora_dropout=lora_dropout,
+                        bias="none",
+                        modules_to_save=["classifier"],
+                        )
+    lora_model = get_peft_model(model, config)
+    
+    return lora_model
 
 
     
@@ -209,21 +224,21 @@ def main():
                     model_state_dict[key] = checkpoint['state_dict'][key]
                 
             target_modules=[
-                        # 'model.conv1',
-                        # 'model.layer1.0.conv1',
-                        # 'model.layer1.0.conv2',
-                        # 'model.layer1.1.conv1',
-                        # 'model.layer1.1.conv2',
-                        # 'model.layer2.0.conv1',
-                        # 'model.layer2.0.conv2',
-                        # 'model.layer2.1.conv1',
-                        # 'model.layer2.1.conv2',
-                        # 'model.layer3.0.conv1',
-                        # 'model.layer3.0.conv2',
-                        # 'model.layer3.1.conv1',
-                        # 'model.layer3.1.conv2',
-                        # 'model.layer4.0.conv1',
-                        # 'model.layer4.0.conv2',
+                        'model.conv1',
+                        'model.layer1.0.conv1',
+                        'model.layer1.0.conv2',
+                        'model.layer1.1.conv1',
+                        'model.layer1.1.conv2',
+                        'model.layer2.0.conv1',
+                        'model.layer2.0.conv2',
+                        'model.layer2.1.conv1',
+                        'model.layer2.1.conv2',
+                        'model.layer3.0.conv1',
+                        'model.layer3.0.conv2',
+                        'model.layer3.1.conv1',
+                        'model.layer3.1.conv2',
+                        'model.layer4.0.conv1',
+                        'model.layer4.0.conv2',
                         'model.layer4.1.conv1',
                         'model.layer4.1.conv2',
                         'model.layer4.1.conv2',
@@ -231,25 +246,31 @@ def main():
                         ]   
             resnet18_config = ResnetConfig(num_classes=10)
             resnet_18 = ResnetModelForImageClassification(config=resnet18_config, pruned_model = model)
-            config = LoraConfig(
-                                r=8,
-                                lora_alpha=16,
-                                target_modules=target_modules,
-                                lora_dropout=0.1,
-                                bias="none",
-                                modules_to_save=["classifier"],
-                            )
-            lora_model = get_peft_model(resnet_18, config)
             print("lora_model_loaded")
-            model = lora_model
-        
+            model = add_lora(resnet_18,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
+            
+        elif args.hf_vit=="YES":
+            print("Loading_prunnd_model")
+            id2label = {0: 'airplane', 1: 'automobile', 2: 'bird', 3: 'cat', 4: 'deer', 5: 'dog', 6: 'frog', 7: 'horse', 8: 'ship', 9: 'truck'}
+            label2id = {'airplane': 0, 'automobile': 1, 'bird': 2, 'cat': 3, 'deer': 4, 'dog': 5, 'frog': 6, 'horse': 7, 'ship': 8, 'truck': 9}
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            checkpoint = torch.load(args.mask, map_location=device)
+            model_vit = ViTForImageClassification.from_pretrained('02shanky/vit-finetuned-cifar10',
+                                                            id2label=id2label,
+                                                            label2id=label2id)
+
+            #load pruned model
+            current_mask = pruner.extract_mask(checkpoint['state_dict'])
+            pruner.prune_model_custom(model_vit, current_mask,args)
+            # Load the model's state_dict from the checkpoint
+            model = model_vit.load_state_dict(checkpoint['state_dict'], strict=False)
         else:
             print("Without LoRA method")
             checkpoint = torch.load(args.mask, map_location=device)
             if 'state_dict' in checkpoint.keys():
                 checkpoint = checkpoint['state_dict']
             current_mask = pruner.extract_mask(checkpoint)
-            pruner.prune_model_custom(model, current_mask)
+            pruner.prune_model_custom(model, current_mask,args)
             # pruner.check_sparsity(model)
 
             if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
@@ -257,9 +278,9 @@ def main():
 
         
         
+        print(model)
         
-        
-        pruner.check_sparsity(model)
+        pruner.check_sparsity(model, args)
         print_trainable_parameters(model)
         
         unlearn_method = unlearn.get_unlearn_method(args.unlearn)
