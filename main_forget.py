@@ -221,20 +221,17 @@ def main():
             if args.lora=='YES':
                 print("VIT_LoRA method")
                 target_modules=["query", "value", "dense"]
-                model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
+                # model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
         elif args.arch=="resnet18" and args.lora=='YES':
             print("RESNET_LoRA_method")
             target_modules=['conv1','conv2','fc']
-            print([name for name, m in model.named_modules()])
-            model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
+            # model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
 
-        
-        
-        print(model)
-        
         pruner.check_sparsity(model, args)
-        print_trainable_parameters(model)
-        
+        if args.lora=='YES':
+            model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
+            print_trainable_parameters(model)
+        print(model)
         unlearn_method = unlearn.get_unlearn_method(args.unlearn)
         # print("unlearn_method: ",unlearn_method)
 
