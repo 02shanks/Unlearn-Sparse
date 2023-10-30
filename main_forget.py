@@ -198,7 +198,7 @@ def main():
             checkpoint = checkpoint['state_dict']
         current_mask = pruner.extract_mask(checkpoint)
         pruner.prune_model_custom(model, current_mask, args)
-        pruner.check_sparsity(model)
+        pruner.check_sparsity(model,args)
 
         if args.unlearn != "retrain" and args.unlearn != "retrain_sam" and args.unlearn != "retrain_ls":
             model.load_state_dict(checkpoint, strict=False)
