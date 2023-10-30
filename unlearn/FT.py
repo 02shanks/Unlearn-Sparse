@@ -83,6 +83,10 @@ def FT_iter(data_loaders, model, criterion, optimizer, epoch, args, with_l1=Fals
                 current_alpha = 0           
             # compute output
             output_clean = model(image)
+            
+            if args.hf_vit=="YES":
+                output_clean = output_clean.logits
+                
             loss = criterion(output_clean, target)
             if with_l1:
                 loss += current_alpha * l1_regularization(model)
