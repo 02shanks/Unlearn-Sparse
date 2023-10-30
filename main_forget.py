@@ -259,27 +259,7 @@ def main():
                 
             if args.lora=='YES':
                 print("RESNET_LoRA method")
-                target_modules=[
-                        'model.conv1',
-                        'model.layer1.0.conv1',
-                        'model.layer1.0.conv2',
-                        'model.layer1.1.conv1',
-                        'model.layer1.1.conv2',
-                        'model.layer2.0.conv1',
-                        'model.layer2.0.conv2',
-                        'model.layer2.1.conv1',
-                        'model.layer2.1.conv2',
-                        'model.layer3.0.conv1',
-                        'model.layer3.0.conv2',
-                        'model.layer3.1.conv1',
-                        'model.layer3.1.conv2',
-                        'model.layer4.0.conv1',
-                        'model.layer4.0.conv2',
-                        'model.layer4.1.conv1',
-                        'model.layer4.1.conv2',
-                        'model.layer4.1.conv2',
-                        'model.fc'
-                        ]
+                target_modules=['conv1','conv2','fc']
                 print([name for name, m in model.named_modules()])
                 model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
             
