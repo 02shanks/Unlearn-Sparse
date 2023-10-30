@@ -257,9 +257,10 @@ def main():
             model_vit = ViTForImageClassification.from_pretrained('02shanky/vit-finetuned-cifar10',
                                                             id2label=id2label,
                                                             label2id=label2id)
-
+            
             #load pruned model
             current_mask = pruner.extract_mask(checkpoint['state_dict'])
+            print(device)
             pruner.prune_model_custom(model_vit, current_mask,args)
             # Load the model's state_dict from the checkpoint
             model = model_vit.load_state_dict(checkpoint['state_dict'], strict=False)
@@ -269,7 +270,6 @@ def main():
             if 'state_dict' in checkpoint.keys():
                 checkpoint = checkpoint['state_dict']
             current_mask = pruner.extract_mask(checkpoint)
-            print(device)
             pruner.prune_model_custom(model, current_mask, args)
             # pruner.check_sparsity(model)
 
