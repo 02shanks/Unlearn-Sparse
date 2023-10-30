@@ -387,7 +387,7 @@ def cifar10_dataloaders(args ,batch_size=128, data_dir='datasets/cifar10', num_w
                 transforms.ToTensor(),
             ])
     else:
-        if args.hf_vit:
+        if args.hf_vit=="YES":
             train_transform = transforms.Compose([
                 transforms.RandomResizedCrop(224),
                 transforms.RandomHorizontalFlip(),
@@ -401,7 +401,7 @@ def cifar10_dataloaders(args ,batch_size=128, data_dir='datasets/cifar10', num_w
                 transforms.ToTensor(),
             ])
             
-    if args.hf_vit:
+    if args.hf_vit=="YES":
         test_transform = transforms.Compose([
         transforms.Resize(224),
         transforms.CenterCrop(224),

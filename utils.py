@@ -85,7 +85,7 @@ def dataset_convert_to_test(dataset,args=None):
         test_transform=transforms.Compose([
     ])
     else:
-        if args.hf_vit:
+        if args.hf_vit=="YES":
             test_transform = transforms.Compose([
             transforms.Resize(224),
             transforms.CenterCrop(224),
