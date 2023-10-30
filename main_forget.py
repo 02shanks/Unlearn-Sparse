@@ -264,6 +264,10 @@ def main():
             pruner.prune_model_custom(model, current_mask,args)
             # Load the model's state_dict from the checkpoint
             model.load_state_dict(checkpoint['state_dict'], strict=False)
+            if args.lora=='YES':
+                print("VIT_LoRA method")
+                target_modules=["query", "value", "dense"]
+                model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
         else:
             print("Without LoRA method")
             checkpoint = torch.load(args.mask, map_location=device)
