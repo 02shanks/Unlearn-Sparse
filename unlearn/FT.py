@@ -67,23 +67,22 @@ def FT_iter(data_loaders, model, criterion, optimizer, epoch, args, with_l1=Fals
                         epoch, i, len(train_loader), end-start, loss=losses, top1=top1))
                 start = time.time()      
     else:
-        with torch.autograd.set_detect_anomaly(True):
-            for i, (image, target) in enumerate(train_loader):
-                if epoch < args.warmup:
-                    utils.warmup_lr(epoch, i+1, optimizer,
-                                    one_epoch_step=len(train_loader), args=args)
+        for i, (image, target) in enumerate(train_loader):
+            if epoch < args.warmup:
+                utils.warmup_lr(epoch, i+1, optimizer,
+                                one_epoch_step=len(train_loader), args=args)
 
-                image = image.cuda()
-                target = target.cuda()
-                if epoch < args.unlearn_epochs-args.no_l1_epochs:
-                    current_alpha = args.alpha * (1 - epoch / (args.unlearn_epochs-args.no_l1_epochs))
-                    # current_alpha = args.alpha * (epoch / (args.unlearn_epochs-args.no_l1_epochs))
-                elif args.unlearn_epochs-args.no_l1_epochs == 0:
-                    current_alpha = args.alpha
-                else:
-                    current_alpha = 0           
-                
-                # compute output
+            image = image.cuda()
+            target = target.cuda()
+            if epoch < args.unlearn_epochs-args.no_l1_epochs:
+                current_alpha = args.alpha * (1 - epoch / (args.unlearn_epochs-args.no_l1_epochs))
+                # current_alpha = args.alpha * (epoch / (args.unlearn_epochs-args.no_l1_epochs))
+            elif args.unlearn_epochs-args.no_l1_epochs == 0:
+                current_alpha = args.alpha
+            else:
+                current_alpha = 0           
+            with torch.autograd.set_detect_anomaly(True):
+             # compute output
                 if args.hf_vit=="YES":
                     output_clean = model(image).logits
                 else:
