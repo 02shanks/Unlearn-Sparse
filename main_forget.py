@@ -230,7 +230,9 @@ def main():
         if args.lora=='YES':
             model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
             print_trainable_parameters(model)
-            
+        
+        print([name for name, m in model.named_modules()])
+ 
         pruner.check_sparsity(model, args)
         print(model)
         
