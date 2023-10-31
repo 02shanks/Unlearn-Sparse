@@ -214,7 +214,6 @@ def main():
             model.to(device)
             #load pruned model
             current_mask = pruner.extract_mask(checkpoint['state_dict'])
-            print(device)
             pruner.prune_model_custom(model, current_mask,args)
             # Load the model's state_dict from the checkpoint
             model.load_state_dict(checkpoint['state_dict'], strict=False)
@@ -227,11 +226,14 @@ def main():
             target_modules=['conv1','conv2','fc']
             # model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
 
-        pruner.check_sparsity(model, args)
+        
         if args.lora=='YES':
             model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
             print_trainable_parameters(model)
+            
+        pruner.check_sparsity(model, args)
         print(model)
+        
         unlearn_method = unlearn.get_unlearn_method(args.unlearn)
         # print("unlearn_method: ",unlearn_method)
 
