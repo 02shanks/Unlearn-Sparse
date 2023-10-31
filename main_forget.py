@@ -22,46 +22,46 @@ import torch
 import torch.nn as nn
 from models.ResNet import *
 
-class ResnetConfig(PretrainedConfig):
-    model_type = "resnet"
+# class ResnetConfig(PretrainedConfig):
+#     model_type = "resnet"
 
-    def __init__(
-        self,
-        num_classes=1000,
-        zero_init_residual=False,
-        groups=1,
-        width_per_group=64,
-        replace_stride_with_dilation=None,
-        norm_layer=None,
-        imagenet=False,
-        **kwargs,
-    ):
-        if norm_layer is None:
-            self.norm_layer = nn.BatchNorm2d
+#     def __init__(
+#         self,
+#         num_classes=1000,
+#         zero_init_residual=False,
+#         groups=1,
+#         width_per_group=64,
+#         replace_stride_with_dilation=None,
+#         norm_layer=None,
+#         imagenet=False,
+#         **kwargs,
+#     ):
+#         if norm_layer is None:
+#             self.norm_layer = nn.BatchNorm2d
 
-        if replace_stride_with_dilation is None:
-            # each element in the tuple indicates if we should replace
-            # the 2x2 stride with a dilated convolution instead
-            self.replace_stride_with_dilation = [False, False, False]
-
-
-
-        self.layers = [2, 2, 2, 2]
-        self.num_classes = num_classes
-        self.groups = groups
-        self.width_per_group = width_per_group
-        super().__init__(**kwargs)
+#         if replace_stride_with_dilation is None:
+#             # each element in the tuple indicates if we should replace
+#             # the 2x2 stride with a dilated convolution instead
+#             self.replace_stride_with_dilation = [False, False, False]
 
 
-class ResnetModelForImageClassification(PreTrainedModel):
-    config_class = ResnetConfig
 
-    def __init__(self, config, pruned_model):
-        super().__init__(config)
-        self.model = pruned_model
+#         self.layers = [2, 2, 2, 2]
+#         self.num_classes = num_classes
+#         self.groups = groups
+#         self.width_per_group = width_per_group
+#         super().__init__(**kwargs)
 
-    def forward(self, tensor):
-        return self.model.forward(tensor)
+
+# class ResnetModelForImageClassification(PreTrainedModel):
+#     config_class = ResnetConfig
+
+#     def __init__(self, config, pruned_model):
+#         super().__init__(config)
+#         self.model = pruned_model
+
+#     def forward(self, tensor):
+#         return self.model.forward(tensor)
 
 def print_trainable_parameters(model):
     trainable_params = 0
