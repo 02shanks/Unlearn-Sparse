@@ -226,15 +226,14 @@ def main():
             target_modules=['conv1','conv2','fc']
             # model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
 
-        
+        pruner.check_sparsity(model, args)
         if args.lora=='YES':
             model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
             print_trainable_parameters(model)
         
-        print([name for name, m in model.named_modules()])
-        print([name for name, m in model.named_parameters()])
+        # print([name for name, m in model.named_modules()])
+        # print([name for name, m in model.named_parameters()])
  
-        pruner.check_sparsity(model, args)
         print(model)
         
         unlearn_method = unlearn.get_unlearn_method(args.unlearn)
