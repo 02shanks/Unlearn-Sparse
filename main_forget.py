@@ -232,6 +232,7 @@ def main():
             print_trainable_parameters(model)
         
         print([name for name, m in model.named_modules()])
+        print([name for name, m in model.named_parameters()])
  
         pruner.check_sparsity(model, args)
         print(model)
