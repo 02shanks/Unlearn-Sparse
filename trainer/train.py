@@ -78,10 +78,10 @@ def train(train_loader, model, criterion, optimizer, epoch, args, l1=False):
             target = target.cuda()
             
             # compute output
-            output_clean = model(image)
-            
             if args.hf_vit=="YES":
-                output_clean = output_clean.logits
+                output_clean = model(image).logits
+            else:
+                output_clean = model(image)
                 
 
             loss = criterion(output_clean, target)

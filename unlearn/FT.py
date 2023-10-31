@@ -81,7 +81,8 @@ def FT_iter(data_loaders, model, criterion, optimizer, epoch, args, with_l1=Fals
                 elif args.unlearn_epochs-args.no_l1_epochs == 0:
                     current_alpha = args.alpha
                 else:
-                    current_alpha = 0           
+                    current_alpha = 0 
+                              
                 # compute output
                 if args.hf_vit=="YES":
                     output_clean = model(image).logits
