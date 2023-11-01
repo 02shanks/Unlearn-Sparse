@@ -279,7 +279,7 @@ def main():
         
         # print([name for name, m in model.named_modules()])
         # print([name for name, m in model.named_parameters()])
-        pruner.check_sparsity(model, args)
+        # pruner.check_sparsity(model, args)
         print(model)
         
         unlearn_method = unlearn.get_unlearn_method(args.unlearn)
