@@ -75,6 +75,8 @@ def parse_args():
                         type=str, help='rewind checkpoint to load')
     parser.add_argument('--hf_vit', default='NO', type=str, 
                         choices=['YES', 'NO'], help='lora method')
+    parser.add_argument('--debug', default=False, type=bool, 
+                        choices=[True, False], help='lora method')
 
     ##################################### Unlearn setting #################################################
     parser.add_argument('--unlearn', type=str,
