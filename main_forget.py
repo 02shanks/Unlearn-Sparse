@@ -347,7 +347,7 @@ def main():
         evaluation_result['SVC_MIA_training_privacy'] = evaluation.SVC_MIA(
             shadow_train=shadow_train_loader, shadow_test=shadow_test_loader,
             target_train=target_train_loader, target_test=target_test_loader,
-            model=model)
+            model=model, args=args)
         unlearn.save_unlearn_checkpoint(model, evaluation_result, args)
 
     unlearn.save_unlearn_checkpoint(model, evaluation_result, args)
