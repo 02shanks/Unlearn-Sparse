@@ -169,10 +169,7 @@ def main():
         for epoch in range(start_epoch, args.epochs):
             start_time = time.time()
             print(optimizer.state_dict()["param_groups"][0]["lr"])
-            if args.debug:
-                acc = train(train_loader[:501], model, criterion, optimizer, epoch, args)
-            else:
-                acc = train(train_loader, model, criterion, optimizer, epoch, args)
+            acc = train(train_loader, model, criterion, optimizer, epoch, args)
 
             if state == 0:
                 if (epoch + 1) == args.rewind_epoch:

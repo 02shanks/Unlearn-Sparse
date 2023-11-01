@@ -206,18 +206,11 @@ def main():
             assert(len(forget_dataset) + len(retain_dataset)
                 == len(train_loader_full.dataset))
 
-    if args.debug:
-        unlearn_data_loaders = OrderedDict(
-            retain=retain_loader[:501],
-            forget=forget_loader[:201],
-            val=val_loader[:101],
-            test=test_loader[:101])
-    else:
-        unlearn_data_loaders = OrderedDict(
-            retain=retain_loader,
-            forget=forget_loader,
-            val=val_loader,
-            test=test_loader)
+    unlearn_data_loaders = OrderedDict(
+        retain=retain_loader,
+        forget=forget_loader,
+        val=val_loader,
+        test=test_loader)
         
 
     criterion = nn.CrossEntropyLoss()
