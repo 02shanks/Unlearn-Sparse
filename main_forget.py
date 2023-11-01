@@ -214,6 +214,7 @@ def main():
         elif args.arch=="resnet18" and args.lora=='YES':
             print("RESNET_LoRA_method")
             target_modules=['conv1','conv2','fc']
+            checkpoint = torch.load(args.mask, map_location=device)
             model_state_dict = model.state_dict()
             for key in checkpoint['state_dict'].keys():
                 if "mask" in key or 'orig' in key:
