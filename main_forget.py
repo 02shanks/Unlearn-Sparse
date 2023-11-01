@@ -202,15 +202,35 @@ def main():
                                                             id2label=id2label,
                                                             label2id=label2id)
             model.to(device)
-            #load pruned model
-            current_mask = pruner.extract_mask(checkpoint['state_dict'])
-            pruner.prune_model_custom(model, current_mask,args)
-            # Load the model's state_dict from the checkpoint
-            model.load_state_dict(checkpoint['state_dict'], strict=False)
+            checkpoint = torch.load(args.mask, map_location=device)
             if args.lora=='YES':
                 print("VIT_LoRA method")
                 target_modules=["query", "value", "dense"]
-                # model = add_lora(model,target_modules,r=8,lora_alpha=16,lora_dropout=0.1)
+                model_state_dict = model.state_dict()
+                for key in checkpoint['state_dict'].keys():
+                    if "mask" in key or 'orig' in key:
+                        raw_key = key.split('_')[0]
+                        orig_w_key = raw_key + '_orig'
+                        mask_w_key = raw_key + '_mask'
+
+                        # Check if orig and mask keys exist in the checkpoint
+                        if orig_w_key not in checkpoint['state_dict'] or mask_w_key not in checkpoint['state_dict']:
+                            raise KeyError(f"Missing orig/mask keys for {raw_key}")
+
+                        # Extract original weight (A) and mask (B)
+                        A = checkpoint['state_dict'][orig_w_key]
+                        B = checkpoint['state_dict'][mask_w_key]
+
+                        # Check if A and B have compatible shapes
+                        if A.shape != B.shape:
+                            raise ValueError(f"Shapes of {orig_w_key} and {mask_w_key} do not match")
+
+                        # Perform pointwise multiplication and assign to the original key in the model's state_dict
+                        model_state_dict[raw_key] = A.mul(B)
+
+                    else:
+                        # Assign the same weight in the checkpoint to the model
+                        model_state_dict[key] = checkpoint['state_dict'][key]
         elif args.arch=="resnet18" and args.lora=='YES':
             print("RESNET_LoRA_method")
             target_modules=['conv1','conv2','fc']
