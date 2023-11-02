@@ -31,7 +31,11 @@ def GA(data_loaders, model, criterion, optimizer, epoch, args):
                                 one_epoch_step=len(train_loader), args=args)
 
             # compute output
-            output_clean = model(image)
+            # compute output
+            if args.hf_vit=="YES":
+                output_clean = model(image).logits
+            else:
+                output_clean = model(image)
 
             loss = -criterion(output_clean, target)
             optimizer.zero_grad()
