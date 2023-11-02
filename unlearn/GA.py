@@ -69,7 +69,10 @@ def GA(data_loaders, model, criterion, optimizer, epoch, args):
             target = target.cuda()
 
             # compute output
-            output_clean = model(image)
+            if args.hf_vit=="YES":
+                output_clean = model(image).logits
+            else:
+                output_clean = model(image)
             loss = -criterion(output_clean, target)
 
             optimizer.zero_grad()
