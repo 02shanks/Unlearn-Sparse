@@ -1,6 +1,5 @@
 import argparse
 
-
 def parse_args():
     parser = argparse.ArgumentParser(
         description='PyTorch Lottery Tickets Experiments')
